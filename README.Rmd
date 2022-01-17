@@ -41,14 +41,14 @@ library(covidminsa)
 get_vaccination()
 ```
 
-```{r echo=FALSE}
-library(tidyverse)
+```{r}
+library(dplyr)
 ```
 
 ```{r}
 fs::dir_info() %>% 
   select(path, type, size, modification_time) %>% 
-  filter(str_detect(path, "vacunas_covid"))
+  filter(stringr::str_detect(path, "vacunas_covid"))
 ```
 
 
