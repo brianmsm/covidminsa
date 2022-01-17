@@ -33,65 +33,42 @@ get_vaccination <- function(path = NULL,
 
   if (!is.null(archive)) {
     if (is.null(path)) {
-      path <- path_dir(archive)
-      size_archive <- file.size(archive)
+      path <- path_arch <- path_dir(archive)
     } else {
-      size_archive <- file.size(fs::path(path, archive))
+      path_arch <- path_dir(archive)
     }
 
-    if (size_archive < size_data) {
-      size_archive <- structure(size_archive,
-                                class="object_size")
-      size_data <- structure(size_data,
-                             class="object_size")
+    size_archive <- file.size(archive)
 
-      message_size_7z <- paste0("The current compressed .7z file weighs ",
-                                format(size_archive, units = "Mb"),
-                                ", and the version available on the MINSA server is",
-                                format(size_data, units = "Mb"), ". Do you want to",
-                                " download the new version? [Yes/no] ")
-      message_size_7z <- writeLines(strwrap(message_size_7z,
-                                            width = getOption("width")))
-      check_message_size_7z <- tolower(readline(message_size_7z))
+    if (is.na(size_archive)) {
+      if (file_exists(fs::path(path, "vacunas_covid.7z"))) {
+        message_na_size_arch_1 <- paste0("There is no file named ", archive,
+                                         ". Make sure you are providing the correct " ,
+                                         "name and/or path where the file is located. \n",
+                                         "However, in your specified path there seems to be",
+                                         "a file with the same name. \n")
+        message_na_size_arch_1 <- strwrap(message_na_size_arch_1,
+                                          width = getOption("width"),
+                                          prefix = " ")
+        warning(message_na_size_arch_1, immediate. = TRUE)
 
-      if (substr(check_message_size_7z, 1, 1) == "y") {
-        message_overwrite_7z <- paste0("Do you want to overwrite the file",
-                                       " 'vacunas_covid.7z'? [Yes/no] ")
-        message_overwrite_7z <- writeLines(strwrap(message_overwrite_7z,
-                                                   width = getOption("width")))
-        check_message_overwrite_7z <- tolower(readline(message_overwrite_7z))
+        archive <- fs::path(path, "vacunas_covid.7z")
+        size_archive <- file.size(archive)
 
-        if (substr(check_message_overwrite_7z, 1, 1) == "y") {
-          # Overwrite 7z
-          options(timeout = max(1000, getOption("timeout")))
-          download.file(link_data_today, archive)
+      } else {
+        message_na_size_arch_2 <- paste0("There is no file named ", archive,
+                                         ". Make sure you are providing the correct " ,
+                                         "name and/or path where the file is located. ",
+                                         "The 7z file is being downloaded.")
+        message_na_size_arch_2 <- strwrap(message_na_size_arch_2,
+                                          width = getOption("width"),
+                                          prefix = " ")
+        warning(message_na_size_arch_2, immediate. = TRUE)
 
-        } else {
-          message_rename_7z <- paste0("What is the new name of your .7z file? ")
-          check_message_rename_7z <- readline(message_rename_7z)
-          check_ext_rename_7z <- substr(check_message_rename_7z,
-                                        nchar(check_message_rename_7z) - 2,
-                                        nchar(check_message_rename_7z))
-
-          # Fix extension archive
-          if (tolower(check_ext_rename_7z) == ".7z") {
-            # Fix extension that was in capital letters
-            check_message_rename_7z <- paste0(substr(check_message_rename_7z, 1,
-                                                     nchar(check_message_rename_7z) - 3),
-                                              ".7z")
-          } else if (check_ext_rename_7z != ".7z") {
-            # Fix extension name in new file and then download it
-            check_message_rename_7z <- paste0(check_message_rename_7z,
-                                              ".7z")
-          }
-
-          # Download 7z archive
-          options(timeout = max(1000, getOption("timeout")))
-          download.file(link_data_today, fs::path(path, check_message_rename_7z))
-        }
+        options(timeout = max(1000, getOption("timeout")))
+        download.file(link_data_today, fs::path(path, "vacunas_covid.7z"))
 
         # Unzip file downloaded
-
         if (file_exists(fs::path(path, "vacunas_covid.csv"))) {
           message_overwrite_csv <- paste0("There is already a file named 'vacunas_covid.csv',",
                                           " do you want to overwrite it? [Yes/no] ")
@@ -150,19 +127,136 @@ get_vaccination <- function(path = NULL,
                                              dir = path))
           }
         }
-      } else {
-        # Nothing to do here?
-        cat("It's okay. Nothing to do here. \n")
       }
-    } else if (size_archive == size_data) {
-      # Same size for archives. Say that archive is update.
-      cat("You already have the most updated file available. \n")
-    } else {
-      # Message about something strange it's happening... How could the current file
-      # size more than server version?
-      cat(writeLines(strwrap(paste0("This is strange... the file you have is heavier than what",
-                                    "is available on the system. I'm not sure what to do here. \n"),
-                             width = getOption("width"))))
+    }
+
+    if (!is.na(size_archive)) {
+      if (size_archive < size_data) {
+        size_archive <- structure(size_archive,
+                                  class="object_size")
+        size_data <- structure(size_data,
+                               class="object_size")
+
+        message_size_7z <- paste0("The current compressed .7z file weighs ",
+                                  format(size_archive, units = "Mb"),
+                                  ", and the version available on the MINSA server is",
+                                  format(size_data, units = "Mb"), ". Do you want to",
+                                  " download the new version? [Yes/no] ")
+        message_size_7z <- writeLines(strwrap(message_size_7z,
+                                              width = getOption("width")))
+        check_message_size_7z <- tolower(readline(message_size_7z))
+
+        if (substr(check_message_size_7z, 1, 1) == "y") {
+          message_overwrite_7z <- paste0("Do you want to overwrite the file",
+                                         " 'vacunas_covid.7z'? [Yes/no] ")
+          message_overwrite_7z <- writeLines(strwrap(message_overwrite_7z,
+                                                     width = getOption("width")))
+          check_message_overwrite_7z <- tolower(readline(message_overwrite_7z))
+
+          if (substr(check_message_overwrite_7z, 1, 1) == "y") {
+            # Overwrite 7z
+            options(timeout = max(1000, getOption("timeout")))
+            download.file(link_data_today, archive)
+
+          } else {
+            message_rename_7z <- paste0("What is the new name of your .7z file? ")
+            check_message_rename_7z <- readline(message_rename_7z)
+            check_ext_rename_7z <- substr(check_message_rename_7z,
+                                          nchar(check_message_rename_7z) - 2,
+                                          nchar(check_message_rename_7z))
+
+            # Fix extension archive
+            if (tolower(check_ext_rename_7z) == ".7z") {
+              # Fix extension that was in capital letters
+              check_message_rename_7z <- paste0(substr(check_message_rename_7z, 1,
+                                                       nchar(check_message_rename_7z) - 3),
+                                                ".7z")
+            } else if (check_ext_rename_7z != ".7z") {
+              # Fix extension name in new file and then download it
+              check_message_rename_7z <- paste0(check_message_rename_7z,
+                                                ".7z")
+            }
+
+            # Download 7z archive
+            options(timeout = max(1000, getOption("timeout")))
+            download.file(link_data_today, fs::path(path, check_message_rename_7z))
+          }
+
+          # Unzip file downloaded
+
+          if (file_exists(fs::path(path, "vacunas_covid.csv"))) {
+            message_overwrite_csv <- paste0("There is already a file named 'vacunas_covid.csv',",
+                                            " do you want to overwrite it? [Yes/no] ")
+            message_overwrite_csv <- writeLines(strwrap(message_overwrite_csv,
+                                                        width = getOption("width")))
+            check_message_overwrite_csv <- tolower(readline(message_overwrite_csv))
+
+            if (substr(check_message_overwrite_csv, 1, 1) == "y") {
+              if (!exists("check_message_rename_7z")) {
+                suppressWarnings(archive_extract(archive = archive,
+                                                 dir = path))
+              } else {
+                suppressWarnings(archive_extract(archive = fs::path(path, check_message_rename_7z),
+                                                 dir = path))
+              }
+            } else {
+              message_rename_csv <- paste0("What is the new name of your .csv file? ")
+              check_message_rename_csv <- readline(message_rename_csv)
+              check_ext_rename_csv <- substr(check_message_rename_csv,
+                                             nchar(check_message_rename_csv) - 3,
+                                             nchar(check_message_rename_csv))
+
+              # Fix extension csv
+              if (tolower(check_ext_rename_csv) == ".csv") {
+                # Fix extension that was in capital letters
+                check_message_rename_csv <- paste0(substr(check_message_rename_csv, 1,
+                                                          nchar(check_message_rename_csv) - 4),
+                                                   ".csv")
+              } else if (check_ext_rename_csv != ".csv") {
+                # Fix extension name in new file and then download it
+                check_message_rename_csv <- paste0(check_message_rename_csv,
+                                                   ".csv")
+              }
+
+              dir_tmp <- fs::path_temp()
+
+              if (!exists("check_message_rename_7z")) {
+                suppressWarnings(archive_extract(archive = archive,
+                                                 dir = dir_tmp))
+              } else {
+                suppressWarnings(archive_extract(archive = fs::path(path, check_message_rename_7z),
+                                                 dir = dir_tmp))
+              }
+
+              # Move csv to path location with new name requested
+              file_move(path = fs::path(dir_tmp, "vacunas_covid.csv"),
+                        new_path = fs::path(path, check_message_rename_csv))
+            }
+
+          } else { # If there isn't exist a previous csv file
+            if (!exists("check_message_rename_7z")) {
+              suppressWarnings(archive_extract(archive = archive,
+                                               dir = path))
+            } else {
+              suppressWarnings(archive_extract(archive = fs::path(path, check_message_rename_7z),
+                                               dir = path))
+            }
+          }
+        } else {
+          # Nothing to do here?
+          cat("It's okay. Nothing to do here. \n")
+        }
+      } else if (size_archive == size_data) {
+        # Same size for archives. Say that archive is update.
+        cat("You already have the most updated file available. \n")
+
+      } else {
+        # Message about something strange it's happening... How could the current file
+        # size more than server version?
+        cat(writeLines(strwrap(paste0("This is strange... the file you have is heavier than what",
+                                      "is available on the system. I'm not sure what to do here. \n"),
+                               width = getOption("width"))))
+      }
     }
   }
 
