@@ -1,0 +1,43 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# covidminsa: A package for download COVID data from MINSA Peru
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of covidminsa is to be an easy way to obtain data from Minsa Peru about COVID-19. 
+
+## Installation
+
+You can install the development version of covidminsa from [GitHub](https://github.com/brianmsm/covidminsa) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("brianmsm/covidminsa")
+```
+
+## Example
+
+This is a basic example which shows you how to download the vaccination data:
+
+```{r example}
+library(covidminsa)
+```
+
+```{r}
+get_vaccination()
+```
+
