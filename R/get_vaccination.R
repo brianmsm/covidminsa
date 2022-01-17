@@ -66,7 +66,8 @@ get_vaccination <- function(path = NULL,
         warning(message_na_size_arch_2, immediate. = TRUE)
 
         options(timeout = max(1000, getOption("timeout")))
-        download.file(link_data_today, fs::path(path, "vacunas_covid.7z"))
+        download.file(link_data_today, fs::path(path, "vacunas_covid.7z"),
+                      mode = "wb")
 
         # Unzip file downloaded
         if (file_exists(fs::path(path, "vacunas_covid.csv"))) {
@@ -156,7 +157,7 @@ get_vaccination <- function(path = NULL,
           if (substr(check_message_overwrite_7z, 1, 1) == "y") {
             # Overwrite 7z
             options(timeout = max(1000, getOption("timeout")))
-            download.file(link_data_today, archive)
+            download.file(link_data_today, archive, mode = "wb")
 
           } else {
             message_rename_7z <- paste0("What is the new name of your .7z file? ")
@@ -179,7 +180,8 @@ get_vaccination <- function(path = NULL,
 
             # Download 7z archive
             options(timeout = max(1000, getOption("timeout")))
-            download.file(link_data_today, fs::path(path, check_message_rename_7z))
+            download.file(link_data_today, fs::path(path, check_message_rename_7z),
+                          mode = "wb")
           }
 
           # Unzip file downloaded
@@ -280,7 +282,8 @@ get_vaccination <- function(path = NULL,
       if (substr(check_message_overwrite_7z_2, 1, 1) == "y") {
         # Overwrite 7z
         options(timeout = max(1000, getOption("timeout")))
-        download.file(link_data_today, fs::path(path, "vacunas_covid.7z"))
+        download.file(link_data_today, fs::path(path, "vacunas_covid.7z"),
+                      mode = "wb")
       } else {
         message_rename_7z_2 <- paste0("What is the new name of your .7z file? ")
         check_message_rename_7z_2 <- readline(message_rename_7z_2)
@@ -302,11 +305,13 @@ get_vaccination <- function(path = NULL,
 
         # Download 7z archive
         options(timeout = max(1000, getOption("timeout")))
-        download.file(link_data_today, fs::path(path, check_message_rename_7z_2))
+        download.file(link_data_today, fs::path(path, check_message_rename_7z_2),
+                      mode = "wb")
       }
     } else {
       options(timeout = max(1000, getOption("timeout")))
-      download.file(link_data_today, fs::path(path, "vacunas_covid.7z"))
+      download.file(link_data_today, fs::path(path, "vacunas_covid.7z"),
+                    mode = "wb")
     }
 
 
