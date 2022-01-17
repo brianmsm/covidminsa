@@ -32,14 +32,18 @@ get_vaccination <- function(path = NULL,
   size_data <- as.numeric(headers(HEAD(link_data_today))[["Content-Length"]])
 
   if (!is.null(archive)) {
-    size_archive <- file.size(archive)
+    if (is.null(path)) {
+      path <- path_dir(archive)
+      size_archive <- file.size(archive)
+    } else {
+      size_archive <- file.size(fs::path(path, archive))
+    }
+
     if (size_archive < size_data) {
       size_archive <- structure(size_archive,
                                 class="object_size")
       size_data <- structure(size_data,
                              class="object_size")
-
-      if (is.null(path)) path <- path_dir(archive)
 
       message_size_7z <- paste0("The current compressed .7z file weighs ",
                                 format(size_archive, units = "Mb"),
@@ -83,12 +87,12 @@ get_vaccination <- function(path = NULL,
 
           # Download 7z archive
           options(timeout = max(1000, getOption("timeout")))
-          download.file(link_data_today, paste0(path, "/", check_message_rename_7z))
+          download.file(link_data_today, fs::path(path, check_message_rename_7z))
         }
 
         # Unzip file downloaded
 
-        if (file_exists(paste0(path, "/vacunas_covid.csv"))) {
+        if (file_exists(fs::path(path, "vacunas_covid.csv"))) {
           message_overwrite_csv <- paste0("There is already a file named 'vacunas_covid.csv',",
                                           " do you want to overwrite it? [Yes/no] ")
           message_overwrite_csv <- writeLines(strwrap(message_overwrite_csv,
@@ -100,7 +104,7 @@ get_vaccination <- function(path = NULL,
               suppressWarnings(archive_extract(archive = archive,
                                                dir = path))
             } else {
-              suppressWarnings(archive_extract(archive = paste0(path, "/", check_message_rename_7z),
+              suppressWarnings(archive_extract(archive = fs::path(path, check_message_rename_7z),
                                                dir = path))
             }
           } else {
@@ -128,13 +132,13 @@ get_vaccination <- function(path = NULL,
               suppressWarnings(archive_extract(archive = archive,
                                                dir = dir_tmp))
             } else {
-              suppressWarnings(archive_extract(archive = paste0(path, "/", check_message_rename_7z),
+              suppressWarnings(archive_extract(archive = fs::path(path, check_message_rename_7z),
                                                dir = dir_tmp))
             }
 
             # Move csv to path location with new name requested
-            file_move(path = paste0(dir_tmp, "/vacunas_covid.csv"),
-                      new_path = paste0(path, "/", check_message_rename_csv))
+            file_move(path = fs::path(dir_tmp, "vacunas_covid.csv"),
+                      new_path = fs::path(path, check_message_rename_csv))
           }
 
         } else { # If there isn't exist a previous csv file
@@ -142,7 +146,7 @@ get_vaccination <- function(path = NULL,
             suppressWarnings(archive_extract(archive = archive,
                                              dir = path))
           } else {
-            suppressWarnings(archive_extract(archive = paste0(path, "/", check_message_rename_7z),
+            suppressWarnings(archive_extract(archive = fs::path(path, check_message_rename_7z),
                                              dir = path))
           }
         }
@@ -170,7 +174,7 @@ get_vaccination <- function(path = NULL,
     # Just download the archive requested
     if (is.null(path)) path <- path_wd()
 
-    if (file_exists(paste0(path, "/vacunas_covid.7z"))) {
+    if (file_exists(fs::path(path, "vacunas_covid.7z"))) {
       message_overwrite_7z_2 <- paste0("It looks like there is already a file named ",
                                        "'vacunas_covid.7z' in your working directory,",
                                        " do you want to overwrite it? [Yes/no] ")
@@ -182,7 +186,7 @@ get_vaccination <- function(path = NULL,
       if (substr(check_message_overwrite_7z_2, 1, 1) == "y") {
         # Overwrite 7z
         options(timeout = max(1000, getOption("timeout")))
-        download.file(link_data_today, paste0(path, "/vacunas_covid.7z"))
+        download.file(link_data_today, fs::path(path, "vacunas_covid.7z"))
       } else {
         message_rename_7z_2 <- paste0("What is the new name of your .7z file? ")
         check_message_rename_7z_2 <- readline(message_rename_7z_2)
@@ -204,15 +208,15 @@ get_vaccination <- function(path = NULL,
 
         # Download 7z archive
         options(timeout = max(1000, getOption("timeout")))
-        download.file(link_data_today, paste0(path, "/", check_message_rename_7z_2))
+        download.file(link_data_today, fs::path(path, check_message_rename_7z_2))
       }
     } else {
       options(timeout = max(1000, getOption("timeout")))
-      download.file(link_data_today, paste0(path, "/vacunas_covid.7z"))
+      download.file(link_data_today, fs::path(path, "vacunas_covid.7z"))
     }
 
 
-    if (file_exists(paste0(path, "/vacunas_covid.csv"))) {
+    if (file_exists(fs::path(path, "vacunas_covid.csv"))) {
       message_overwrite_csv_2 <- paste0("There is already a file named 'vacunas_covid.csv',",
                                         " do you want to overwrite it? [Yes/no] ")
       message_overwrite_csv_2 <- writeLines(strwrap(message_overwrite_csv_2,
@@ -221,10 +225,10 @@ get_vaccination <- function(path = NULL,
 
       if (substr(check_message_overwrite_csv_2, 1, 1) == "y") {
         if (!exists("check_message_rename_7z_2")) {
-          suppressWarnings(archive_extract(archive = paste0(path, "/vacunas_covid.7z"),
+          suppressWarnings(archive_extract(archive = fs::path(path, "vacunas_covid.7z"),
                                            dir = path))
         } else {
-          suppressWarnings(archive_extract(archive = paste0(path, "/", check_message_rename_7z_2),
+          suppressWarnings(archive_extract(archive = fs::path(path, check_message_rename_7z_2),
                                            dir = path))
         }
       } else {
@@ -249,24 +253,24 @@ get_vaccination <- function(path = NULL,
         dir_tmp_2 <- fs::path_temp()
 
         if (!exists("check_message_rename_7z_2")) {
-          suppressWarnings(archive_extract(archive = paste0(path, "/vacunas_covid.7z"),
+          suppressWarnings(archive_extract(archive = fs::path(path, "vacunas_covid.7z"),
                                            dir = dir_tmp_2))
         } else {
-          suppressWarnings(archive_extract(archive = paste0(path, "/", check_message_rename_7z_2),
+          suppressWarnings(archive_extract(archive = fs::path(path, check_message_rename_7z_2),
                                            dir = dir_tmp_2))
         }
 
         # Move csv to path location with new name requested
-        file_move(path = paste0(dir_tmp_2, "/vacunas_covid.csv"),
-                  new_path = paste0(path, "/", check_message_rename_csv_2))
+        file_move(path = fs::path(dir_tmp_2, "vacunas_covid.csv"),
+                  new_path = fs::path(path, check_message_rename_csv_2))
       }
 
     } else { # If there isn't exist a previous csv file
       if (!exists("check_message_rename_7z")) {
-        suppressWarnings(archive_extract(archive = paste0(path, "/vacunas_covid.7z"),
+        suppressWarnings(archive_extract(archive = fs::path(path, "vacunas_covid.7z"),
                                          dir = path))
       } else {
-        suppressWarnings(archive_extract(archive = paste0(path, "/", check_message_rename_7z_2),
+        suppressWarnings(archive_extract(archive = fs::path(path, check_message_rename_7z_2),
                                          dir = path))
       }
     }
