@@ -2,9 +2,12 @@
 
 export(get_vaccination)
 importFrom(archive,archive_extract)
+importFrom(fs,file_exists)
+importFrom(fs,file_move)
 importFrom(fs,file_temp)
 importFrom(fs,path_dir)
 importFrom(fs,path_temp)
+importFrom(fs,path_wd)
 importFrom(httr,GET)
 importFrom(httr,HEAD)
 importFrom(httr,headers)
