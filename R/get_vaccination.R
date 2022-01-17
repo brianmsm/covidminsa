@@ -14,7 +14,7 @@
 #'
 #' @importFrom httr GET headers HEAD
 #' @importFrom jsonlite fromJSON
-#' @importFrom fs file_temp path_dir path_temp
+#' @importFrom fs file_temp path_dir path_temp file_exists path_wd file_move
 #' @importFrom utils download.file
 #' @importFrom archive archive_extract
 #'
@@ -168,42 +168,47 @@ get_vaccination <- function(path = NULL,
 
   if (is.null(archive)) {
     # Just download the archive requested
-    if (is.null(path)) path <- fs::path_wd()
+    if (is.null(path)) path <- path_wd()
 
-    message_overwrite_7z_2 <- paste0("It looks like there is already a file named ",
-                                     "'vacunas_covid.7z' in your working directory,",
-                                     " do you want to overwrite it? [Yes/no] ")
-    message_overwrite_7z_2 <- writeLines(strwrap(message_overwrite_7z_2,
-                                                 width = getOption("width")))
+    if (file_exists(paste0(path, "/vacunas_covid.7z"))) {
+      message_overwrite_7z_2 <- paste0("It looks like there is already a file named ",
+                                       "'vacunas_covid.7z' in your working directory,",
+                                       " do you want to overwrite it? [Yes/no] ")
+      message_overwrite_7z_2 <- writeLines(strwrap(message_overwrite_7z_2,
+                                                   width = getOption("width")))
 
-    check_message_overwrite_7z_2 <- tolower(readline(message_overwrite_7z_2))
+      check_message_overwrite_7z_2 <- tolower(readline(message_overwrite_7z_2))
 
-    if (substr(check_message_overwrite_7z_2, 1, 1) == "y") {
-      # Overwrite 7z
+      if (substr(check_message_overwrite_7z_2, 1, 1) == "y") {
+        # Overwrite 7z
+        options(timeout = max(1000, getOption("timeout")))
+        download.file(link_data_today, paste0(path, "/vacunas_covid.7z"))
+      } else {
+        message_rename_7z_2 <- paste0("What is the new name of your .7z file? ")
+        check_message_rename_7z_2 <- readline(message_rename_7z_2)
+        check_ext_rename_7z_2 <- substr(check_message_rename_7z_2,
+                                        nchar(check_message_rename_7z_2) - 2,
+                                        nchar(check_message_rename_7z_2))
+
+        # Fix extension archive
+        if (tolower(check_ext_rename_7z_2) == ".7z") {
+          # Fix extension that was in capital letters
+          check_message_rename_7z_2 <- paste0(substr(check_message_rename_7z_2, 1,
+                                                     nchar(check_message_rename_7z_2) - 3),
+                                              ".7z")
+        } else if (check_ext_rename_7z_2 != ".7z") {
+          # Fix extension name in new file and then download it
+          check_message_rename_7z_2 <- paste0(check_message_rename_7z_2,
+                                              ".7z")
+        }
+
+        # Download 7z archive
+        options(timeout = max(1000, getOption("timeout")))
+        download.file(link_data_today, paste0(path, "/", check_message_rename_7z_2))
+      }
+    } else {
       options(timeout = max(1000, getOption("timeout")))
       download.file(link_data_today, paste0(path, "/vacunas_covid.7z"))
-    } else {
-      message_rename_7z_2 <- paste0("What is the new name of your .7z file? ")
-      check_message_rename_7z_2 <- readline(message_rename_7z_2)
-      check_ext_rename_7z_2 <- substr(check_message_rename_7z_2,
-                                      nchar(check_message_rename_7z_2) - 2,
-                                      nchar(check_message_rename_7z_2))
-
-      # Fix extension archive
-      if (tolower(check_ext_rename_7z_2) == ".7z") {
-        # Fix extension that was in capital letters
-        check_message_rename_7z_2 <- paste0(substr(check_message_rename_7z_2, 1,
-                                                   nchar(check_message_rename_7z_2) - 3),
-                                            ".7z")
-      } else if (check_ext_rename_7z_2 != ".7z") {
-        # Fix extension name in new file and then download it
-        check_message_rename_7z_2 <- paste0(check_message_rename_7z_2,
-                                            ".7z")
-      }
-
-      # Download 7z archive
-      options(timeout = max(1000, getOption("timeout")))
-      download.file(link_data_today, paste0(path, "/", check_message_rename_7z_2))
     }
 
 
