@@ -1,12 +1,14 @@
 Package: covidminsa
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: A package for download COVID data from MINSA Peru
+Version: 0.0.1
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    person(given = "Brian Norman",
+           family = "Peña-Calero",
+           role = c("aut", "cre"),
+           email = "brianmsm@gmail.com",
+           comment = c(ORCID = "0000-0002-1073-9306"))
+Description: The goal of covidminsa is to be an easy way to obtain data from Minsa Peru about COVID-19.
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
