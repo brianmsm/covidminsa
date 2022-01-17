@@ -14,7 +14,7 @@
 #'
 #' @importFrom httr GET headers HEAD
 #' @importFrom jsonlite fromJSON
-#' @importFrom fs file_temp path_dir path_tmp
+#' @importFrom fs file_temp path_dir path_temp
 #' @importFrom utils download.file
 #' @importFrom archive archive_extract
 #'
